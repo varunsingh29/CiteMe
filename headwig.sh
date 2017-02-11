@@ -13,7 +13,7 @@ read url
     # Set mode to get content of page in HTML
     url="${url}?action=render"
 
-    # curl in default mode to get source code
+    # Get source code using curl
     # regex to scrap off html code
     curl $url | sed 's/<\/*[^>]*>//g' > scraped.txt
 
@@ -24,32 +24,41 @@ read url
     # remove all empty lines
     sed -i '/^$/d' scraped.txt
 
-    # Find patterns and modify them one at a time
+    # Find patterns/
     grep -o '\(\. \)\?\([^\.]\|[0-9]*\.[0-9]\+\)*\(\[[0-9]\+]\)\+[^\.]*' scraped.txt > inter.txt
 
-    # If citations is present then proceed
-    len=1
+    # While citations are present, proceed
     while grep -q '\[[0-9]\+]' inter.txt
     do
-        # select top most line with citations
-        str=`grep -o '\. \([^\.]\|[0-9]*\.[0-9]\+\)*\(\[[0-9]\+]\)\+[^\.]*' inter.txt | head -1`
+        # select top most line with citations using head
+        str=`grep -o '\(\. \)\?\([^\.]\|[0-9]*\.[0-9]\+\)*\(\[[0-9]\+]\)\+[^\.]*' inter.txt | head -1`
 
         # Store all citation numbers in a var after removing []
         cite=`echo $str | grep -o '\[[0-9]\+]' | sed 's/\(\[\|]\)//g'`
 
-        #Remove only first occurence of '. ' if present in beg
-        sed -i -e '0,/\. / s///' inter.txt
-        sed -i 's/\. //g' inter.txt
+        # Remove '. ' from only first line if present
+        # Important to do line by line regex used \.
+        sed -i 1,1's/\. //g' inter.txt
 
         # Remove cites from first line of main text
-        sed -i $len,$len's/\[[0-9]\+]//g' inter.txt
+        sed -i 1,1's/\[[0-9]\+]//g' inter.txt
 
-        # Append ~ around numbers around nth line and create a result file
-        ptext=`cat inter.txt | sed "${len}q;d"`
+        # Select first line i.e being processed
+        ptext=`cat inter.txt | head -1`
+
+        # Preprocess $ptext to escape \ in variable
+        ptext=$(echo "$ptext" | sed 's/\//\\\//g')
+
+        # Preprocess $ptext to escape [] in variable.
+        # Use capture groups to process [text] except citations
+        ptext=$(echo "$ptext" | sed 's/\[\([^0-9].\+[^0-9]\)\]/\\\[\1\\\]/g')
+
+        # Delete processed line bc $str uses first line
+        sed -i "/$ptext/d" inter.txt
+
+        # Format the output with ~ and put results in a file
         ptext="~ $cite ~ $ptext"
-
         echo $ptext >> lines.txt
-        ((len++))
     done
 
     while true
@@ -68,44 +77,52 @@ read url
                 read inp
 
                 # Use cite shell variable in regex to search from result set
-                res=`cat lines.txt | grep ".* $inp .*"`
+                # Using files because keeps line endings intact
+                cat lines.txt | grep "~.* $inp .*~" > final.txt
 
                 # Remove all citation numbers from result
-                res=`echo $res | sed 's/~.\+~//g'`
+                sed -i 's/~.\+~//g' final.txt
 
                 # Print output
-                echo $res
+                echo "String(s): "
+                cat final.txt
                 ;;
 
             #   For queries of type 2
             2)  echo "Enter string: "
                 read str
 
+                # Remove Full stop from end if present. If not, grep wont match
+                str=`echo $str | sed 's/\.$//g'`
+
                 # select searched line from result file
-                res=`cat lines.txt | grep -o "$str"`
+                res=`cat lines.txt | grep "$str"`
 
                 # remove text and keep citation numbers
-                res=`echo $res | grep -o '~.~'`
+                res=`echo $res | grep -o '~.\+~' | sed 's/~//g'`
 
                 # Print output
-                echo $res
+                echo "Citation(s): " $res
                 ;;
 
             #   Default case
             *)  echo "Invalid Input"
                 echo "The program will now exit..."
+                break
                 ;;
 
         esac
 
-        read "Do you wish to continue? (y/n)" wish
-        echo $wish
+        echo "Do you wish to continue? (y/n)"
+        read wish
 
-        if [ "$wish" == "y" ]; then
+        if [ "$wish" == "n" ] ; then
             break
         fi
     done
 
+    # Cleaning up directory
+    rm -f final.txt inter.txt lines.txt
 # done < "$filename"
 
 
