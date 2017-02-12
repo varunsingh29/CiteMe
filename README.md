@@ -4,11 +4,7 @@ Given a wikipedia article as a URL, this bash script performs two tasks.
 
 __Task 1:__ Get all lines with citations **X** ( where X is a number)
 
-<<<<<<< HEAD
 __Task 2:__ Get all the citations of a particular line.
-=======
-__Task 2: __ Get all the citations of a particular line.
->>>>>>> d1cf627a5dd0f1d7104fdbaf26804e23f0033549
 
 Implmented using curl, sed, grep, regex and a little bit of magic.
 
