@@ -1,0 +1,4 @@
+https://en.wikipedia.org/wiki/Regular_grammar
+1
+2
+n
