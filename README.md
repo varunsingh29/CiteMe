@@ -6,7 +6,7 @@ __Task 1:__ Get all lines with citations **X** ( where X is a number)
 
 __Task 2:__ Get all the citations of a particular line.
 
-Implmented using curl, sed, grep, regex and a little bit of magic.
+Implemented using curl, sed, grep, regex and a little bit of magic.
 
 ----------
 
@@ -19,6 +19,8 @@ $ cd CiteMe
 $ bash CiteMe.sh
 ```
 #### __External Dependencies__
+__Linux__
+
 _None !!_
 
 The script uses standard utilities such as `curl` `grep` `sed`  all of which are preinstalled on most flavors of Linux. However if any of the utility isn't present on your system, run the following commands
@@ -27,6 +29,18 @@ The script uses standard utilities such as `curl` `grep` `sed`  all of which are
 $ sudo apt-get install curl
 $ sudo apt-get install sed
 $ sudo apt-get install grep
+```
+
+__macOS__
+
+Since macOS uses BSD sed and the script uses features of GNU sed, install GNU sed by typing
+```
+$ brew install gnu-sed --with-default-names
+```
+Update path if needed
+```
+$ echo $PATH | grep -q '/usr/local/bin'; [ $? -ne 0 ] && export PATH=/usr/local/bin:$PATH
+$ echo a | sed ’s_A_X_i’
 ```
 ---------
 
@@ -43,7 +57,7 @@ This may take a few seconds ... Go Grab a snickers!
 Done !!
 ```
 ```
-Chose type of query
+Choose type of query
 [1]: Get lines with citation X
 [2]: Get citations of a line
 ```
@@ -173,8 +187,15 @@ __NOTE:__ The internet connection issue test case passes when the network is dis
 > regular expression.
 [Source](http://stackoverflow.com/questions/590747/using-regular-expressions-to-parse-html-why-not)
 
--  Bash is not a POSIX shell. Also, won't work on other OS like Windows and macOS.( _Working to port this for cross platform support using Python_)
-- Will not identify some lines that have texts such as __Oct. 19__ (notice the dot space character), __U.S. __ , __etc. __ (the word etcetera itself) and others since the fundamental assumption is that new sentence starts with a `. ` or a newline, so there is no way of telling if it is a new line or such abbreviations, and hence the output for a given citation number may sometimes have a partial sentence. Although, such cases are less in numbers.
+-  Bash is not a POSIX shell. Also, won't work on other OS like Windows and macOS.
+- Will not identify some lines that have texts such as __Oct. 19__ (notice the dot space character), __U.S.__ , __etc.__ (the word etcetera itself) and others since the fundamental assumption is that new sentence starts with a `. ` or a newline, so there is no way of telling if it is a new line or such abbreviations, and hence the output for a given citation number may sometimes have a partial sentence. Although, such cases are less in numbers.
+
+-----
+
+### __Update__
+
+Ported this project to Python using Requests and beautifulsoup4 for cross platform support.
+Link:  [CiteMePy](https://github.com/varunsingh29/CiteMePy)
 
 -----
 
@@ -184,4 +205,3 @@ Ever since I have switched to Linux (the last summer), I have always loved how u
 __Bonus__ (For the love of xkcd)
 
 ![](regular_expressions.jpg "Me after this project")
-

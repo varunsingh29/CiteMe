@@ -79,7 +79,7 @@ while true
 do
 
     # Take queries
-    echo "Chose type of query"
+    echo "Choose type of query"
     echo "[1]: Get lines with citation X"
     echo "[2]: Get citations of a line"
 
